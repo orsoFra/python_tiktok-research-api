@@ -26,6 +26,6 @@ The script takes the following arguments:
 ## EXAMPLE:
 I want to gather 1000 videos a day for all the months from 2020 to 2023
 
-python TT_extractor.py -by 2020 -fy 2023 -n 10 -rnd -day $(date +\%Y-\%m-\%d)   <- this last piece will give you the current date, you can also set this up in a crontab job - n=10 since it will do 10 queries of 100 elements
+python TT_extractor.py -by 2020 -fy 2023 -n 10 -rnd -day $(date +\%Y-\%m-\%d)   <- this last piece will give you the current date, you can also set this up in a crontab job ( n=10 since it will do 10 queries of 100 elements)
 
-The original scriots by **adinagit**. are stored in /base_code. For documentation about those, you hsould refer to the original repo.
+The original scripts by **adinagit** are stored in /base_code. For documentation about those, you should refer to the original repo.
