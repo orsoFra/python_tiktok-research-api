@@ -86,7 +86,7 @@ def data_collection(ACCESS_TOKEN,HASH_SEARCH=None,MAX_QUERIES=100,START_DATE=202
     QUERY: all videos with hashtags provided in argument list
     ..feel free to customize!
     """
-    if HASH_SEARCH != None and HASH_SEARCH not in ['US','US_LONG']:
+    if HASH_SEARCH != None and HASH_SEARCH in ['USX','US_LONG']:
         QUERY = {
             'and':[{
             'operation':'EQ',
