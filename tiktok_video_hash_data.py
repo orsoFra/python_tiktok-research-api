@@ -2,11 +2,22 @@ import requests
 import json
 import time
 import sys
-sys.path.append('config_files/')
+sys.path.append('../../config_files/')
 from dotenv import load_dotenv
 import os
 import pickle
 from folders import env_folder
+"""
+GET PARAMETERS
+---
+(1) hashtag
+(2) start date
+(3) end date
+(4) output file (.json)
+(5) [optional] search id
+(6) [optional] cursor
+"""
+
 
 ALL_FIELDS = 'id,video_description,create_time, region_code,share_count,view_count,like_count,\
     comment_count, music_id,hashtag_names, username,effect_ids,playlist_id,voice_to_text'
@@ -34,6 +45,7 @@ WRITE DATA TO FILE
 def write_data(DATA_FILE,DATA_LIST):
     with open(DATA_FILE, 'w') as f:
         json.dump(DATA_LIST, f, indent=2)
+    f.close()
 
 """
 QUERY
@@ -74,13 +86,70 @@ def data_collection(ACCESS_TOKEN,HASH_SEARCH=None,MAX_QUERIES=100,START_DATE=202
     QUERY: all videos with hashtags provided in argument list
     ..feel free to customize!
     """
-    if HASH_SEARCH != None:
+    if HASH_SEARCH != None and HASH_SEARCH not in ['US','US_LONG']:
+        QUERY = {
+            'and':[{
+            'operation':'EQ',
+            'field_name':'hashtag_name',
+            'field_values': [HASH_SEARCH] #here we pass the hashtag
+            },     
+            {
+            "operation": "IN",
+            "field_name": "region_code",
+            "field_values": ["US"] # we look for videos posted only in the US
+            }
+            ],
+            "not": [
+                {
+                        "operation": "IN",
+                        "field_name": "video_length",
+                        "field_values": ["SHORT","MID"]#exclude videos under 1 min of length
+                }
+                ]
+        }
+    elif HASH_SEARCH == 'US':
         QUERY = {
             'and':[
             {
             "operation": "IN",
             "field_name": "region_code",
-            #must compile the list of EU countries
+            "field_values": ['US'] # we look for videos posted only in the US - random sample
+            }
+            ]
+        }
+    elif HASH_SEARCH == 'US_LONG':
+        QUERY = {
+            'and':[
+            {
+            "operation": "IN",
+            "field_name": "region_code",
+            "field_values": ['US'] # we look for videos posted only in the US - random sample
+            }
+            ],
+             "not": [
+                {
+                        "operation": "IN",
+                        "field_name": "video_length",
+                        "field_values": ["SHORT","MID"]#exclude videos under 1 min of length
+                }
+            ]
+        }
+    elif HASH_SEARCH == 'EU':
+        QUERY = {
+            'and':[
+            {
+            "operation": "IN",
+            "field_name": "region_code",
+            "field_values": ['AT', 'BE', 'BG', 'CH', 'CY', 'CZ', 'DE', 'DK', 'EE', 'ES', 'FI', 'FR', 'GR', 'HR', 'HU', 'IE', 'IS', 'IT', 'LT', 'LU', 'LV', 'MT', 'NL', 'NO', 'PL', 'PT', 'RO', 'SE', 'SI', 'SK'] # we look for videos posted only in the US
+            }
+            ]
+        }
+    else:
+        QUERY = {
+            'and':[
+            {
+            "operation": "IN",
+            "field_name": "region_code",
             "field_values": ['FR', 'TH', 'MM', 'BD', 'IT', 'NP', 'IQ', 'BR', 'US', 'KW', 'VN', 'AR', 'KZ', 'GB', 'UA', 'TR', 'ID', 'PK', 'NG', 'KH', 'PH', 'EG', 'QA', 'MY', 'ES', 'JO', 'MA', 'SA', 'TW', 'AF', 'EC', 'MX', 'BW', 'JP', 'LT', 'TN', 'RO', 'LY', 'IL', 'DZ', 'CG', 'GH', 'DE', 'BJ', 'SN', 'SK', 'BY', 'NL', 'LA', 'BE', 'DO', 'TZ', 'LK', 'NI', 'LB', 'IE', 'RS', 'HU', 'PT', 'GP', 'CM', 'HN', 'FI', 'GA', 'BN', 'SG', 'BO', 'GM', 'BG', 'SD', 'TT', 'OM', 'FO', 'MZ', 'ML', 'UG', 'RE', 'PY', 'GT', 'CI', 'SR', 'AO', 'AZ', 'LR', 'CD', 'HR', 'SV', 'MV', 'GY', 'BH', 'TG', 'SL', 'MK', 'KE', 'MT', 'MG', 'MR', 'PA', 'IS', 'LU', 'HT', 'TM', 'ZM', 'CR', 'NO', 'AL', 'ET', 'GW', 'AU', 'KR', 'UY', 'JM', 'DK', 'AE', 'MD', 'SE', 'MU', 'SO', 'CO', 'AT', 'GR', 'UZ', 'CL', 'GE', 'PL', 'CA', 'CZ', 'ZA', 'AI', 'VE', 'KG', 'PE', 'CH', 'LV', 'PR', 'NZ', 'TL', 'BT', 'MN', 'FJ', 'SZ', 'VU', 'BF', 'TJ', 'BA', 'AM', 'TD', 'SI', 'CY', 'MW', 'EE', 'XK', 'ME', 'KY', 'YE', 'LS', 'ZW', 'MC', 'GN', 'BS', 'PF', 'NA', 'VI', 'BB', 'BZ', 'CW', 'PS', 'FM', 'PG', 'BI', 'AD', 'TV', 'GL', 'KM', 'AW', 'TC', 'CV', 'MO', 'VC', 'NE', 'WS', 'MP', 'DJ', 'RW', 'AG', 'GI', 'GQ', 'AS', 'AX', 'TO', 'KN', 'LC', 'NC', 'LI', 'SS', 'IR', 'SY', 'IM', 'SC', 'VG', 'SB', 'DM', 'KI', 'UM', 'SX', 'GD', 'MH', 'BQ', 'YT', 'ST', 'CF', 'BM', 'SM', 'PW', 'GU', 'HK', 'IN', 'CK', 'AQ', 'WF', 'JE', 'MQ', 'CN', 'GF', 'MS', 'GG', 'TK', 'FK', 'PM', 'NU', 'MF', 'ER', 'NF', 'VA', 'IO', 'SH', 'BL', 'CU', 'NR', 'TP', 'BV', 'EH', 'PN', 'TF', 'RU'] # we look for videos posted only in the US
             }
             ]
@@ -89,13 +158,13 @@ def data_collection(ACCESS_TOKEN,HASH_SEARCH=None,MAX_QUERIES=100,START_DATE=202
     """
     MAKE INITIAL QUERY
     """
-    if(not IS_RANDOM):#apparently, for  random query we do not have pagination
+    if(not IS_RANDOM):#aaparently, for  random query we do not have pagination
         try:
             D = query(QUERY,START_DATE,END_DATE,100,ACCESS_TOKEN,CURSOR,SEARCH_ID,IS_RANDOM)#THE CHECK IS DONE AFTER IN THE QUERY FUNCTION
             SEARCH_ID = D.json()['data']['search_id']
         except:
             print('We had an error!!')
-            #print(D.json()['error'])
+            print(D.json()['error'])
             #print(D.json())
             #print(START_DATE)
             exit()
@@ -108,15 +177,13 @@ def data_collection(ACCESS_TOKEN,HASH_SEARCH=None,MAX_QUERIES=100,START_DATE=202
                 D = query(QUERY,START_DATE,END_DATE,100,ACCESS_TOKEN,CURSOR,SEARCH_ID,IS_RANDOM)#THE CHECK IS DONE AFTER IN THE QUERY FUNCTION
                 '''if(D.json()['error']['code'] != 'ok'):
                     raise Exception()'''
+                DATA_LIST.append(D.json())
             except:
-                print('We had an error!!')
-                print(D.json()['error'])
-                #print(D.json())
-                #print(START_DATE)
-                exit()
+                print('We had an error - to handle this we wait 1 minute!')
+                time.sleep(60)
+                #continue #we go on with the cycle and not break
 
             
-            DATA_LIST.append(D.json())
             time.sleep(1)
         return DATA_LIST,i,None,None
         
@@ -160,11 +227,11 @@ def main_collection(ACCESS_TOKEN,HASH_SEARCH,MAX_QUERIES,START_DATE,END_DATE,DAT
     print('    Writing the data file')
     write_data(DATA_FILE,data)
     
-    if(c is not None and s is not None): #we save the search status
+    if(c is not None and s is not None and CS_FILE is not None): #we save the search status
         print('    Writing the recovery file')
         p= (c,s)  
         with open(CS_FILE, "wb") as internal_filename:
             pickle.dump(p, internal_filename)
     print(f'    Concluded the month {START_DATE} - {END_DATE}')
-    return n_q
+    return n_q,data
 
