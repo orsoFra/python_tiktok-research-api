@@ -68,7 +68,7 @@ if __name__ == "__main__":
         if not os.path.exists(f"{args.hashtag}/{args.day}/{j}"): 
             # if the directory is not present create it. 
             os.makedirs(f"{args.hashtag}/{args.day}/{j}")
-        for i in range(6,7,1):#from 1 to 12
+        for i in range(6,8,1):#add here your weeks
             if(counter_calls >990):
                 print(f'Performed {counter_calls} calls, we wait until midnight to begin again...')
                 time.sleep(time_until_midnight_utc()+2)#wait until midnight UTC of the next day to proceed
@@ -81,6 +81,6 @@ if __name__ == "__main__":
                 END_DATE = f'{j}1231'#we set the last day to the 31 12 of the year
                 i=54 #so that we know it will stop the cycle after the last collection
             print(f"Performing collection from {START_DATE} to {END_DATE}")
-            main_collection(ACCESS_TOKEN,args.hashtag,10,int(START_DATE),int(END_DATE),DATA_FILE,CS_FILE,IS_RANDOM=True)
-            counter_calls += 19
+            main_collection(ACCESS_TOKEN,args.hashtag,1000,int(START_DATE),int(END_DATE),DATA_FILE,CS_FILE,IS_RANDOM=True)
+            counter_calls += 1000
                 
