@@ -56,7 +56,7 @@ if __name__ == "__main__":
     ACCESS_TOKEN = get_access_token()
     T = time.process_time() # get new access token every hour (good for 2 hours)
     
-    a,b,c=2023,2024,1 #we set the period 
+    a,b,c=2024,2025,1 #we set the period 
     counter_calls = 0 #count the queries
     for j in range(a,b,c):#iterate over the years
         
